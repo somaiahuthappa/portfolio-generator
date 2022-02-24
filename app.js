@@ -1,15 +1,6 @@
 const inquirer = require('inquirer');
-// const fs = require('fs');
-// const generatePage = require('./src/page-template.js');
-
-// const [name, github] = profileDataArgs;
-
-
-// fs.writeFile('./index.html', generatePage(name, github), err => {
-//     if (err) throw new Error(err);
-
-//     console.log('Portfolio complete! Check out index.html to see the output!')
-// });
+const fs = require('fs');
+const generatePage = require('./src/page-template.js');
 
 const promptUser = () => {
     return inquirer.prompt([
@@ -40,7 +31,7 @@ const promptUser = () => {
             }
         },
         {
-            type:'confirm',
+            type: 'confirm',
             name: 'confirmAbout',
             message: 'Would you like to enter some information about yourself for an "About" section?',
             default: true
@@ -49,7 +40,7 @@ const promptUser = () => {
             type: 'input',
             name: 'about',
             message: 'Provide some information about yourself:',
-            when: ({confirmAbout}) => {
+            when: ({ confirmAbout }) => {
                 if (confirmAbout) {
                     return true;
                 } else {
@@ -60,7 +51,7 @@ const promptUser = () => {
     ]);
 };
 
-const promptProject = portfolioData => { 
+const promptProject = portfolioData => {
     console.log(`
     ==================
     Add a New Project
@@ -141,5 +132,21 @@ const promptProject = portfolioData => {
 promptUser()
     .then(promptProject)
     .then(portfolioData => {
-        console.log(portfolioData)
+        const pageHTML = generatePage(portfolioData);
+
+        fs.writeFile('./dist/index.html', pageHTML, err => {
+            if (err) {throw new Error(err);
+                return;
+            }
+            console.log('Page created! Check out index.htnl in this directory to see it');
+
+            fs.copyFile('./src/style.css', './dist/style.css', err => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                console.log('style sheet copied successfully!');
+            });
+    
     });
+});
